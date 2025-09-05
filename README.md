@@ -13,7 +13,7 @@ A full-stack application that leverages machine learning and real-time market da
 # Technologies Used
 Frontend: React, TypeScript, Chart.js / D3.js
 
-Backend: Python (FastAPI), PostgreSQL, Redis
+Backend: Python (FastAPI), PostgreSQL, Redis, AWS CLI
 
 Machine Learning: scikit-learn, pandas, NumPy, XGBoost
 
@@ -91,7 +91,9 @@ Phase 1 (Complete): Data Foundation & Basic UI
 
 ✅ PostgreSQL database schema for items and price history.
 
-✅ Basic web interface to browse skins and view historical price charts.
+⏳ Basic web interface to browse skins and view historical price charts.
+
+⏳ Utilize AWS CLI to obtain data from the cloud
 
 Phase 2 (In Progress): ML Predictions & Portfolio Tracking
 
