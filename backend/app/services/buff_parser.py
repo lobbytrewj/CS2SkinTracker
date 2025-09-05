@@ -4,12 +4,81 @@ import time
 import random
 import config
 import requests
+import psycopg2
+import os
+from datetime import datetime
+from psycopg2 import Error
 
 
 class BuffParser:
     def __init__(self):
         self.sale = False
         self.max_pages = 10
+        self.db_params = {
+            'host': os.getenv('DB_HOST', 'localhost'),
+            'database': os.getenv('DB_NAME', 'cs2skins'),
+            'user': os.getenv('DB_USER'),
+            'password': os.getenv('DB_PASSWORD'),
+            'port': os.getenv('DB_PORT', '5432')
+        }
+        self.init_database()
+
+    def init_database(self):
+            """Initialize PostgreSQL database and tables"""
+            try:
+                conn = psycopg2.connect(**self.db_params)
+                cursor = conn.cursor()
+
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS items (
+                        id SERIAL PRIMARY KEY,
+                        market_hash_name VARCHAR(255) NOT NULL,
+                        item_id VARCHAR(255) NOT NULL,
+                        type VARCHAR(50) NOT NULL,
+                        url TEXT NOT NULL,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    );
+                    
+                    CREATE INDEX IF NOT EXISTS idx_market_hash_name 
+                    ON items(market_hash_name);
+                """)
+
+                conn.commit()
+                print("Database initialized successfully")
+
+            except (Exception, Error) as error:
+                print(f"Error initializing database: {error}")
+            finally:
+                if conn:
+                    cursor.close()
+                    conn.close()
+
+    def store_in_database(self, products):
+            """Store items in PostgreSQL database"""
+            try:
+                conn = psycopg2.connect(**self.db_params)
+                cursor = conn.cursor()
+
+                for product in products:
+                    cursor.execute("""
+                        INSERT INTO items (market_hash_name, item_id, type, url)
+                        VALUES (%s, %s, %s, %s)
+                    """, (
+                        product['market_hash_name'],
+                        str(product['id']),
+                        'sale' if self.sale else 'purchase',
+                        f"https://buff.163.com/goods/{product['id']}?from=market#tab={'selling' if self.sale else 'buying'}"
+                    ))
+
+                conn.commit()
+                print(f"Stored {len(products)} items in database")
+
+            except (Exception, Error) as error:
+                print(f"Error storing data in database: {error}")
+            finally:
+                if conn:
+                    cursor.close()
+                    conn.close()
 
     def start(self):
         for url in config.URLS:
@@ -22,6 +91,7 @@ class BuffParser:
                 products.extend(self.get_response(url, page)['data']['items'])
             data_parsed = self.parse_products(products)
             self.export_to_csv(data_parsed)
+            self.store_in_database(products)
 
     def get_response(self, url, page):
         max_retries = 5
