@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Grid, Card, CardContent, Typography, CircularProgress } from '@mui/material';
+import { Grid, Card, CardContent, Typography, CircularProgress, Container } from '@mui/material';
+import { Link } from 'react-router-dom';
 import { api } from '../../services/api';
 
 interface Item {
@@ -31,39 +32,51 @@ const ItemList: React.FC = () => {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
+      <Container sx={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
         <CircularProgress />
-      </div>
+      </Container>
     );
   }
 
   return (
-    <Grid container spacing={3}>
-      {items.map((item) => (
-        <Grid item xs={12} sm={6} md={4} key={item.item_id}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                {item.market_hash_name}
-              </Typography>
-              <Typography color="textSecondary">
-                Type: {item.type}
-              </Typography>
-              {item.buff_price && (
-                <Typography>
-                  Buff Price: ${item.buff_price.toFixed(2)}
-                </Typography>
-              )}
-              {item.steam_price && (
-                <Typography>
-                  Steam Price: ${item.steam_price.toFixed(2)}
-                </Typography>
-              )}
-            </CardContent>
-          </Card>
-        </Grid>
-      ))}
-    </Grid>
+    <Container>
+      <Grid container spacing={3}>
+        {items.map((item) => (
+        <Grid container spacing={2}>
+            item 
+            key={item.item_id}
+            xs={12}
+            sm={6}
+            md={4}
+            <Link 
+              to={`/item/${item.item_id}`}
+              style={{ textDecoration: 'none', width: '100%' }}
+            >
+              <Card sx={{ height: '100%' }}>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    {item.market_hash_name}
+                  </Typography>
+                  <Typography color="textSecondary">
+                    Type: {item.type}
+                  </Typography>
+                  {item.buff_price && (
+                    <Typography>
+                      Buff Price: ${item.buff_price.toFixed(2)}
+                    </Typography>
+                  )}
+                  {item.steam_price && (
+                    <Typography>
+                      Steam Price: ${item.steam_price.toFixed(2)}
+                    </Typography>
+                  )}
+                </CardContent>
+              </Card>
+            </Link>
+          </Grid>
+        ))}
+      </Grid>
+    </Container>
   );
 };
 

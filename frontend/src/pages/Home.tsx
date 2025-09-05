@@ -1,6 +1,6 @@
 import React from 'react';
 import { Typography } from '@mui/material';
-import ItemList from 'frontend/src/components/items/ItemList';
+import ItemList from '../components/items/ItemList';
 
 const Home = () => {
   return (
