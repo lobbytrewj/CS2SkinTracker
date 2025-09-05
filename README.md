@@ -13,7 +13,7 @@ A full-stack application that leverages machine learning and real-time market da
 # Technologies Used
 Frontend: React, TypeScript, Chart.js / D3.js
 
-Backend: Python (FastAPI), PostgreSQL, Redis
+Backend: Python (FastAPI), PostgreSQL, Redis, AWS CLI
 
 Machine Learning: scikit-learn, pandas, NumPy, XGBoost
 
