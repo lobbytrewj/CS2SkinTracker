@@ -91,7 +91,9 @@ Phase 1 (Complete): Data Foundation & Basic UI
 
 ✅ PostgreSQL database schema for items and price history.
 
-✅ Basic web interface to browse skins and view historical price charts.
+⏳ Basic web interface to browse skins and view historical price charts.
+
+⏳ Utilize AWS CLI to obtain data from the cloud
 
 Phase 2 (In Progress): ML Predictions & Portfolio Tracking
 
