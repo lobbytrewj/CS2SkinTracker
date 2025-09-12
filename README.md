@@ -2,7 +2,7 @@
 A full-stack application that leverages machine learning and real-time market data to provide investment advice for the Counter-Strike 2 (CS2) skin market. This tool helps users track their portfolio, analyze market trends, and make data-driven decisions to maximize their return on investment.
 
 # Core Features
-📊 Market Data Collection: Scrapes and aggregates data from the Steam Community Market and third-party sites like CSFloat and Buff163, tracking price history, volume, and item metadata.
+📊 Market Data Collection: Scrapes and aggregates data from the Steam Community Market and third-party sites like Buff163 to track price history, volume, and item metadata.
 
 🤖 Price Prediction Engine: Utilizes Random Forest/XGBoost and LSTM models with technical and fundamental analysis to forecast future skin prices.
 
@@ -13,20 +13,20 @@ A full-stack application that leverages machine learning and real-time market da
 # Technologies Used
 Frontend: React, TypeScript, Chart.js / D3.js
 
-Backend: Python (FastAPI), PostgreSQL, Redis, AWS CLI
+Backend: Python (FastAPI), PostgreSQL
 
 Machine Learning: scikit-learn, pandas, NumPy, XGBoost
 
-APIs & Scraping: Steam API, aiohttp, BeautifulSoup
+APIs & Scraping: Buff163 API, aiohttp, BeautifulSoup
 
-Deployment: Docker, AWS / Heroku
+Deployment: Local System (AWS coming soon)
 
 # Prerequisites
 Python 3.8+
 
 Node.js and npm
 
-Docker and Docker Compose
+PostgreSQL
 
 A Steam API Key (get one here)
 
@@ -50,20 +50,22 @@ pip install -r requirements.txt
 ```
 * Set up environment variables: Create a .env file in the backend directory and add your Steam API key:
 ```
-STEAM_API_KEY="YOUR_API_KEY_HERE"
-DATABASE_URL="postgresql://postgres:yourpassword@localhost/cs2_db"
+DB_HOST=localhost
+DB_NAME=cs2skins
+DB_USER=your_username
+DB_PASSWORD=your_password
+DB_PORT=5432
 ```
-* Launch the database with Docker:
-```
-docker-compose up -d
-```
-This will start a PostgreSQL container.
+* Initialize your database:
+'''
+python init_db.py
+'''
 * Run the backend server:
 ```
 uvicorn app.main:app --reload
 The API will be available at http://localhost:8000.
 ```
-3. Frontend Setup
+3. Frontend Setup (Coming Soon)
 * Navigate to the frontend directory and install dependencies:
 ```
 cd frontend
@@ -75,27 +77,17 @@ npm start
 ```
 The application will be running at http://localhost:3000.
 
-4. Run Initial Data Collection
-* Execute the collection script to populate the database with initial skin data.
-```
-python scripts/collect_data.py
-```
+# Implementation Progress Checks
 
-# Implementation Roadmap
+Phase 1 (Current): Data Foundation & Basic UI
 
-The project is being developed in three main phases:
-
-Phase 1 (Complete): Data Foundation & Basic UI
-
-✅ Data collection pipeline for popular skins from the Steam Market.
+✅ Data collection pipeline for popular skins from Buff163.
 
 ✅ PostgreSQL database schema for items and price history.
 
 ⏳ Basic web interface to browse skins and view historical price charts.
 
-⏳ Utilize AWS CLI to obtain data from the cloud
-
-Phase 2 (In Progress): ML Predictions & Portfolio Tracking
+Phase 2 (Upcoming): ML Predictions & Portfolio Tracking
 
 ⏳ Implementation of ML prediction models (Random Forest, LSTM).
 
@@ -103,10 +95,12 @@ Phase 2 (In Progress): ML Predictions & Portfolio Tracking
 
 ⏳ Development of an initial investment scoring algorithm.
 
-Phase 3 (Upcoming): Recommendation Engine & Advanced Analytics
+Phase 3 (Future): Recommendation Engine & Advanced Analytics
 
 planned: Build a full recommendation engine with "Buy/Hold/Sell" signals.
 
 planned: Implement a notification system for price alerts.
 
 planned: Polish UI/UX and add advanced portfolio analytics dashboards.
+
+planned: Utilize AWS CLI to obtain data from the cloud
