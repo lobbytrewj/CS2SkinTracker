@@ -1,4 +1,3 @@
-# backend/app/services/price_collector.py
 import asyncio
 import logging
 from datetime import datetime
