@@ -13,9 +13,7 @@ Portfolio Tracker & Analytics: Allows users to import their Steam inventory to m
 # Technologies Used
 Frontend: React, TypeScript, Chart.js / D3.js
 
-Backend: Python (FastAPI), PostgreSQL
-
-Machine Learning: scikit-learn, pandas, NumPy, XGBoost
+Backend: Python (FastAPI), PostgreSQL, scikit-learn, pandas, NumPy, XGBoost
 
 APIs & Scraping: Buff163 API, aiohttp, BeautifulSoup
 
