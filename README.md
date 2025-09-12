@@ -1,14 +1,14 @@
-# CS2 Skin Investment Advisor 📈
+# CS2 Skin Investment Advisor
 A full-stack application that leverages machine learning and real-time market data to provide investment advice for the Counter-Strike 2 (CS2) skin market. This tool helps users track their portfolio, analyze market trends, and make data-driven decisions to maximize their return on investment.
 
 # Core Features
-📊 Market Data Collection: Scrapes and aggregates data from the Steam Community Market and third-party sites like Buff163 to track price history, volume, and item metadata.
+Market Data Collection: Scrapes and aggregates data from the Steam Community Market and third-party sites like Buff163 to track price history, volume, and item metadata.
 
-🤖 Price Prediction Engine: Utilizes Random Forest/XGBoost and LSTM models with technical and fundamental analysis to forecast future skin prices.
+Price Prediction Engine: Utilizes Random Forest/XGBoost and LSTM models with technical and fundamental analysis to forecast future skin prices.
 
-💡 Investment Recommendation System: Generates "Buy/Hold/Sell" signals using portfolio optimization techniques (Modern Portfolio Theory) and custom risk scoring.
+Investment Recommendation System: Generates "Buy/Hold/Sell" signals using portfolio optimization techniques (Modern Portfolio Theory) and custom risk scoring.
 
-💼 Portfolio Tracker & Analytics: Allows users to import their Steam inventory to monitor real-time Profit & Loss, analyze portfolio health, and set up custom price alerts.
+Portfolio Tracker & Analytics: Allows users to import their Steam inventory to monitor real-time Profit & Loss, analyze portfolio health, and set up custom price alerts.
 
 # Technologies Used
 Frontend: React, TypeScript, Chart.js / D3.js
@@ -85,22 +85,22 @@ Phase 1 (Current): Data Foundation & Basic UI
 
 ✅ PostgreSQL database schema for items and price history.
 
-⏳ Basic web interface to browse skins and view historical price charts.
+(In Progress) Basic web interface to browse skins and view historical price charts.
 
 Phase 2 (Upcoming): ML Predictions & Portfolio Tracking
 
-⏳ Implementation of ML prediction models (Random Forest, LSTM).
+Implementation of ML prediction models (Random Forest, LSTM).
 
-⏳ User portfolio tracking by importing a Steam inventory.
+User portfolio tracking by importing a Steam inventory.
 
-⏳ Development of an initial investment scoring algorithm.
+Development of an initial investment scoring algorithm.
 
 Phase 3 (Future): Recommendation Engine & Advanced Analytics
 
-planned: Build a full recommendation engine with "Buy/Hold/Sell" signals.
+Build a full recommendation engine with "Buy/Hold/Sell" signals.
 
-planned: Implement a notification system for price alerts.
+Implement a notification system for price alerts.
 
-planned: Polish UI/UX and add advanced portfolio analytics dashboards.
+Polish UI/UX and add advanced portfolio analytics dashboards.
 
-planned: Utilize AWS CLI to obtain data from the cloud
+Utilize AWS CLI to obtain data from the cloud
