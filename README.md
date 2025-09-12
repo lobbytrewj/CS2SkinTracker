@@ -2,7 +2,7 @@
 A full-stack application that leverages machine learning and real-time market data to provide investment advice for the Counter-Strike 2 (CS2) skin market. This tool helps users track their portfolio, analyze market trends, and make data-driven decisions to maximize their return on investment.
 
 # Core Features
-📊 Market Data CollectionScrapes and aggregates data from the Steam Community Market and third-party sites like Buff163 to track price history, volume, and item metadata.
+📊 Market Data Collection: Scrapes and aggregates data from the Steam Community Market and third-party sites like Buff163 to track price history, volume, and item metadata.
 
 🤖 Price Prediction Engine: Utilizes Random Forest/XGBoost and LSTM models with technical and fundamental analysis to forecast future skin prices.
 
