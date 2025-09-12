@@ -2,12 +2,14 @@ import requests
 from bs4 import BeautifulSoup
 import json
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import os
 from dotenv import load_dotenv
 from typing import List, Dict, Optional
+import asyncio
+import logger
 
 load_dotenv()
 
@@ -36,25 +38,73 @@ class BuffParser:
             print(f"Database connection failed: {e}")
             return None
 
-    async def get_item_price(self, item_name: str) -> Optional[float]:
+    async def get_item_price(self, market_hash_name: str) -> Optional[float]:
         """Get current price for a specific item"""
         try:
+            await asyncio.sleep(1)
+
+            if not market_hash_name or not isinstance(market_hash_name, str):
+                logger.error(f"Invalid item name: {market_hash_name}")
+                return None
+            
             params = {
                 'game': 'csgo',
                 'page_num': 1,
-                'search': item_name
+                'search': market_hash_name
             }
-            response = requests.get(self.base_url, headers=self.headers, params=params)
-            response.raise_for_status()
-            
-            data = response.json()
-            if data['code'] == 'OK' and data['data']['items']:
-                return float(data['data']['items'][0]['sell_min_price'])
+            response = await self._make_request(self.base_url, params)
+            if response and response.get('code') == 'OK':
+                items = response.get('data', {}).get('items', [])
+                if items:
+                    price = items[0].get('sell_min_price')
+                    if price is not None and float(price) > 0:
+                        return float(price)
+                    logger.warning(f"Invalid price for {market_hash_name}: {price}")
             return None
-        except requests.RequestException as e:
-            print(f"Error fetching price for {item_name}: {e}")
+            
+        except Exception as e:
+            logger.error(f"Error getting price for {market_hash_name}: {e}")
             return None
 
+    async def get_item_details(self, market_hash_name: str) -> Optional[Dict]:
+        """Get detailed information about an item"""
+        try:
+            await asyncio.sleep(1)
+            
+            if not market_hash_name or not isinstance(market_hash_name, str):
+                logger.error(f"Invalid item name: {market_hash_name}")
+                return None
+                
+            params = {
+                'game': 'csgo',
+                'page_num': 1,
+                'search': market_hash_name
+            }
+            
+            response = await self._make_request(self.base_url, params)
+            if response and response.get('code') == 'OK':
+                items = response.get('data', {}).get('items', [])
+                if items:
+                    item = items[0]
+                    sell_min_price = item.get('sell_min_price')
+                    steam_price = item.get('steam_price_cny')
+                    
+                    if sell_min_price is not None and steam_price is not None:
+                        return {
+                            'market_hash_name': item.get('market_hash_name'),
+                            'sell_min_price': float(sell_min_price),
+                            'sell_num': int(item.get('sell_num', 0)),
+                            'steam_price': float(steam_price),
+                            'buff_price': float(sell_min_price),
+                            'updated_at': datetime.now(timezone.utc)
+                        }
+                    logger.warning(f"Invalid prices for {market_hash_name}: buff={sell_min_price}, steam={steam_price}")
+            return None
+            
+        except Exception as e:
+            logger.error(f"Error getting details for {market_hash_name}: {e}")
+            return None
+    
     async def get_items(self, limit: int = 100) -> List[Dict]:
         """Get all items from database"""
         conn = self.connect_db()
@@ -128,7 +178,6 @@ class BuffParser:
         
         try:
             cur = conn.cursor()
-            # Get all items
             cur.execute("SELECT item_id, market_hash_name FROM items")
             items = cur.fetchall()
             

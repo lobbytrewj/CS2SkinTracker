@@ -4,11 +4,103 @@ from datetime import datetime, timedelta
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import os
+from dotenv import load_dotenv
+from pydantic import BaseModel
+
+load_dotenv()
+
+db_params = {
+    "host": os.getenv("DB_HOST", "localhost"),
+    "database": os.getenv("DB_NAME"),
+    "user": os.getenv("DB_USER"),
+    "password": os.getenv("DB_PASSWORD"),
+    "port": os.getenv("DB_PORT", "5432")
+}
+
+class ItemCreate(BaseModel):
+    market_hash_name: str
+    item_type: str
+    weapon_type: str
+    skin_name: str
+    wear: str
 
 router = APIRouter(
     prefix="/prices",
     tags=["prices"]
 )
+
+@router.post("/")
+async def add_item(item: dict):
+    """Add a new item to the database"""
+    try:
+        conn = psycopg2.connect(**db_params)
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        
+        cur.execute("""
+            SELECT item_id FROM items 
+            WHERE market_hash_name = %s
+        """, (item.market_hash_name,))
+        
+        if cur.fetchone():
+            raise HTTPException(status_code=400, detail="Item already exists")
+        
+
+        cur.execute("""
+            INSERT INTO items 
+            (market_hash_name, type, weapon_type, skin_name, wear)
+            VALUES (%s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
+            RETURNING *
+        """, (
+            item.market_hash_name,
+            item.item_type,
+            item.weapon_type,
+            item.skin_name,
+            item.wear
+        ))
+        
+        new_item = cur.fetchone()
+        conn.commit()
+        return new_item
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        if conn:
+            cur.close()
+            conn.close()
+
+@router.get("/")
+async def get_items():
+    """Get all items from database"""
+    try:
+        conn = psycopg2.connect(**db_params)
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        
+        cur.execute("""
+            SELECT 
+                item_id,
+                market_hash_name,
+                item_type,
+                weapon_type,
+                skin_name,
+                wear,
+                steam_price,
+                buff_price,
+                volume,
+                created_at
+            FROM items 
+            ORDER BY created_at DESC
+        """)
+        
+        items = cur.fetchall()
+        return items
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        if conn:
+            cur.close()
+            conn.close()
 
 @router.get("/{item_id}/history")
 async def get_price_history(
@@ -29,11 +121,12 @@ async def get_price_history(
                 ph.timestamp,
                 i.market_hash_name
             FROM price_history ph
-            JOIN items i ON i.item_id = ph.item_id
+            JOIN items i ON ph.item_id = i.id
             WHERE ph.item_id = %s
             AND ph.timestamp >= %s
         """
-        params = [item_id, datetime.utcnow() - timedelta(days=days)]
+        
+        params = [item_id, datetime.now() - timedelta(days=days)]
         
         if source:
             query += " AND ph.source = %s"
@@ -42,19 +135,16 @@ async def get_price_history(
         query += " ORDER BY ph.timestamp DESC"
         
         cur.execute(query, params)
-        history = cur.fetchall()
+        results = cur.fetchall()
         
-        if not history:
-            raise HTTPException(status_code=404, detail="No price history found")
-            
-        return history
+        cur.close()
+        conn.close()
         
+        return results
+    except psycopg2.Error as e:
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        if conn:
-            cur.close()
-            conn.close()
+        raise HTTPException(status_code=500, detail=f"Error fetching price history: {str(e)}")
 
 @router.get("/analysis/{item_id}")
 async def get_price_analysis(item_id: str):

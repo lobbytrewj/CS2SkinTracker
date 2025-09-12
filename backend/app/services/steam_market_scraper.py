@@ -47,7 +47,7 @@ class SteamMarketPrices:
         params = {
             'country': self.country,
             'currency': self.currency,
-            'appid': appid,
+            'appid': 730,
             'market_hash_name': market_hash_name
         }
 

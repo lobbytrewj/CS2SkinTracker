@@ -3,7 +3,6 @@ import os
 import requests
 import json
 
-# Add the backend directory to Python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 BASE_URL = "http://localhost:8000/api"
