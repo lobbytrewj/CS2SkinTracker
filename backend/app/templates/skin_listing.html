@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Market Overview</h5>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <p class="mb-1">Total Items</p>
+                            <h3>{{ stats.total_items }}</h3>
+                        </div>
+                        <div class="col-md-3">
+                            <p class="mb-1">Average Price</p>
+                            <h3>${{ "%.2f"|format(stats.avg_price) if stats.avg_price else 'N/A' }}</h3>
+                        </div>
+                        <div class="col-md-3">
+                            <p class="mb-1">Lowest Price</p>
+                            <h3>${{ "%.2f"|format(stats.min_price) if stats.min_price else 'N/A' }}</h3>
+                        </div>
+                        <div class="col-md-3">
+                            <p class="mb-1">Highest Price</p>
+                            <h3>${{ "%.2f"|format(stats.max_price) if stats.max_price else 'N/A' }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Filters</h5>
+                    <form id="filterForm" method="get">
+                        <div class="mb-3">
+                            <label class="form-label">Weapon Type</label>
+                            <select class="form-select" name="weapon_type">
+                                <option value="">All</option>
+                                {% for type in weapon_types %}
+                                <option value="{{ type }}" {% if filters.weapon_type == type %}selected{% endif %}>
+                                    {{ type }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Wear</label>
+                            <select class="form-select" name="wear">
+                                <option value="">All</option>
+                                {% for wear in wears %}
+                                <option value="{{ wear }}" {% if filters.wear == wear %}selected{% endif %}>
+                                    {{ wear }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Price Range</label>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" name="min_price" 
+                                       placeholder="Min" step="0.01" min="0"
+                                       value="{{ filters.min_price if filters.min_price }}">
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" name="max_price" 
+                                       placeholder="Max" step="0.01" min="0"
+                                       value="{{ filters.max_price if filters.max_price }}">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Sort By</label>
+                            <select class="form-select" name="sort_by">
+                                <option value="name" {% if filters.sort_by == 'name' %}selected{% endif %}>Name</option>
+                                <option value="price" {% if filters.sort_by == 'price' %}selected{% endif %}>Price</option>
+                                <option value="type" {% if filters.sort_by == 'type' %}selected{% endif %}>Type</option>
+                                <option value="wear" {% if filters.sort_by == 'wear' %}selected{% endif %}>Wear</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Order</label>
+                            <select class="form-select" name="order">
+                                <option value="asc" {% if filters.order == 'asc' %}selected{% endif %}>Ascending</option>
+                                <option value="desc" {% if filters.order == 'desc' %}selected{% endif %}>Descending</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+                        <a href="/skins" class="btn btn-secondary w-100 mt-2">Reset Filters</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Items Grid -->
+        <div class="col-md-9">
+            <div class="row">
+                {% if items %}
+                    {% for item in items %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 price-card">
+                            <div class="card-body">
+                                <h5 class="card-title text-truncate" title="{{ item.market_hash_name }}">
+                                    {{ item.market_hash_name }}
+                                </h5>
+                                <p class="card-text">
+                                    <small class="text-muted">
+                                        {{ item.weapon_type }} | {{ item.wear }}
+                                    </small>
+                                </p>
+                                <div class="mb-3">
+                                    <h4 class="mb-0">${{ "%.2f"|format(item.current_price) if item.current_price else 'N/A' }}</h4>
+                                    <small class="text-muted">
+                                        Last updated: {{ item.price_updated.strftime('%Y-%m-%d %H:%M') if item.price_updated else 'Never' }}
+                                    </small>
+                                </div>
+                                <a href="/skin/{{ item.item_id }}" class="btn btn-primary w-100">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            No items found matching your filters.
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('filterForm');
+    
+    form.addEventListener('submit', function(e) {
+        const minPrice = parseFloat(form.min_price.value);
+        const maxPrice = parseFloat(form.max_price.value);
+        
+        if (minPrice && maxPrice && minPrice > maxPrice) {
+            e.preventDefault();
+            alert('Minimum price cannot be greater than maximum price');
+        }
+    });
+});
+</script>
+{% endblock %}

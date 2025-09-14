@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <h1>{{ item.market_hash_name }}</h1>
+        <p class="lead">
+            Weapon Type: {{ item.weapon_type }} | 
+            Wear: {{ item.wear }}
+        </p>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Price History</h5>
+                <canvas id="priceChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Current Price</h5>
+                <h2>${{ item.buff_price if item.buff_price else 'N/A' }}</h2>
+                <p>Last Updated: {{ item.updated_at.strftime('%Y-%m-%d %H:%M:%S') if item.updated_at else 'N/A' }}</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Statistics</h5>
+                <ul class="list-unstyled">
+                    <li>7-Day Average: ${{ "%.2f"|format(stats.avg_price) if stats.avg_price else 'N/A' }}</li>
+                    <li>7-Day High: ${{ "%.2f"|format(stats.max_price) if stats.max_price else 'N/A' }}</li>
+                    <li>7-Day Low: ${{ "%.2f"|format(stats.min_price) if stats.min_price else 'N/A' }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('priceChart');
+    if (!ctx) return;
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: JSON.parse('{{ price_history.dates | tojson | safe }}'),
+            datasets: [{
+                label: 'Price History',
+                data: JSON.parse('{{ price_history.prices | tojson | safe }}'),
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1,
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value.toString();
+                        }
+                    }
+                },
+                x: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Date'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return '$' + context.raw.toString();
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

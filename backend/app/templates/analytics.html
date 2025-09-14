@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Market Analytics</h1>
+    
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total Items</h5>
+                    <h2>{{ market_stats.total_items if market_stats.total_items else '0' }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Price Data Points</h5>
+                    <h2>{{ market_stats.total_price_points if market_stats.total_price_points else '0' }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Average Item Price</h5>
+                    <h2>${{ "%.2f"|format(market_stats.overall_avg_price) if market_stats.overall_avg_price else '0.00' }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Top Items by Value</h5>
+                    {% if top_items %}
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Average Price</th>
+                                        <th>Price Range</th>
+                                        <th>Data Points</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in top_items %}
+                                    <tr>
+                                        <td>{{ item.market_hash_name }}</td>
+                                        <td>${{ "%.2f"|format(item.avg_price) }}</td>
+                                        <td>${{ "%.2f"|format(item.min_price) }} - ${{ "%.2f"|format(item.max_price) }}</td>
+                                        <td>{{ item.data_points }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            No price data available yet. Check back after more data has been collected.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Trending Items (7-Day Price Change)</h5>
+                    {% if trending_items %}
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Price Change</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in trending_items %}
+                                    <tr>
+                                        <td>{{ item.market_hash_name }}</td>
+                                        <td class="{{ 'text-success' if item.price_change > 0 else 'text-danger' }}">
+                                            {{ "%.1f"|format(item.price_change) }}%
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            No trend data available yet. Check back after more price history has been collected.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

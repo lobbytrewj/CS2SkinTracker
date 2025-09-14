@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-4">CS2 Skins</h1>
+
+<div class="row">
+    <div class="col-md-3 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Filters</h5>
+                <form id="filterForm">
+                    <div class="mb-3">
+                        <label class="form-label">Weapon Type</label>
+                        <select class="form-select" name="weapon_type">
+                            <option value="">All</option>
+                            {% for type in weapon_types %}
+                            <option value="{{ type }}">{{ type }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Wear</label>
+                        <select class="form-select" name="wear">
+                            <option value="">All</option>
+                            {% for wear in wears %}
+                            <option value="{{ wear }}">{{ wear }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Apply Filters</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-9">
+        <div class="row" id="skinsGrid">
+            {% for item in items %}
+            <div class="col-md-4 mb-3">
+                <div class="card price-card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ item.market_hash_name }}</h5>
+                        <p class="card-text">
+                            Type: {{ item.weapon_type }}<br>
+                            Wear: {{ item.wear }}<br>
+                            Current Price: ${{ item.buff_price or 'N/A' }}
+                        </p>
+                        <a href="/skin/{{ item.item_id }}" class="btn btn-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
